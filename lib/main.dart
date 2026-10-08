@@ -12,9 +12,10 @@ import 'features/spare_parts/providers/auth_provider.dart';
 import 'core/services/hardware_barcode_service.dart';
 import 'core/network/dio_client.dart';
 import 'core/widgets/offline_status_banner.dart';
-import 'core/widgets/pos_inactivity_lock.dart';
+import 'core/widgets/barcode_action_bottom_sheet.dart';
 import 'core/offline/offline_sync_manager.dart';
 import 'core/constants/app_colors.dart';
+import 'core/utils/snackbar_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +41,9 @@ class OnParApp extends ConsumerWidget {
 
     final authState = ref.watch(authStateProvider);
 
-   return MaterialApp(
+    return MaterialApp(
+      navigatorKey: rootNavigatorKey,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'On-Par ERP',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -68,14 +71,11 @@ class OnParApp extends ConsumerWidget {
         ),
       ),
       builder: (context, child) {
-        // 1. Kasa Güvenliği: 10 dakika hareketsizlikte otomatik kilit
-        // 2. Fiziksel Barkod Dinleyici: Ekranda TextField odaklı olmasa bile okunan donanım barkodlarını yakalar
-        // 3. Çevrimdışı Durum Çubuğu: Ağ koptuğunda ve kuyrukta veri olduğunda en üstte kurumsal bildirim çubuğu gösterir
-        return PosInactivityLockWrapper(
-          child: GlobalBarcodeListenerWidget(
-            child: OfflineStatusBanner(
-              child: child ?? const SizedBox.shrink(),
-            ),
+        // 1. Fiziksel Barkod Dinleyici: Ekranda TextField odaklı olmasa bile okunan donanım barkodlarını yakalar
+        // 2. Çevrimdışı Durum Çubuğu: Ağ koptuğunda ve kuyrukta veri olduğunda en üstte kurumsal bildirim çubuğu gösterir
+        return GlobalBarcodeListenerWidget(
+          child: OfflineStatusBanner(
+            child: child ?? const SizedBox.shrink(),
           ),
         );
       },
@@ -87,16 +87,14 @@ class OnParApp extends ConsumerWidget {
 }
 
 // --- SENİOR DOKUNUŞU: NESTED (İÇ İÇE) NAVİGASYON VE KALICI ALT MENÜ ---
-class MainNavigationScreen extends StatefulWidget {
+class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _currentIndex = 0;
-
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   // Her sekme için ayrı bir Navigator Anahtarı (Key) oluşturuyoruz
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),
@@ -113,11 +111,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   // Alt menüdeki sekmeler arası geçiş
   void _selectTab(int index) {
-    if (_currentIndex == index) {
+    final currentTab = ref.read(activeBottomTabIndexProvider);
+    if (currentTab == index) {
       // Eğer kullanıcı zaten bulunduğu sekmeye tekrar tıklarsa, o sekmeyi en başa (root) döndür
       _navigatorKeys[index].currentState!.popUntil((route) => route.isFirst);
     } else {
-      setState(() => _currentIndex = index);
+      ref.read(activeBottomTabIndexProvider.notifier).setTab(index);
     }
   }
 
@@ -133,20 +132,23 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(activeBottomTabIndexProvider);
+
     return PopScope(
       // Android geri tuşunu manuel yöneteceğimiz için varsayılanı kapatıyoruz
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
+        final currentTab = ref.read(activeBottomTabIndexProvider);
         // Mevcut sekmedeki iç navigatörde geri gidilebilecek bir sayfa var mı bak
-        final isFirstRouteInCurrentTab = !await _navigatorKeys[_currentIndex]
+        final isFirstRouteInCurrentTab = !await _navigatorKeys[currentTab]
             .currentState!
             .maybePop();
 
         // Eğer sekmenin en başındaysak (geri gidilecek alt sayfa yoksa)
         if (isFirstRouteInCurrentTab) {
-          if (_currentIndex != 0) {
+          if (currentTab != 0) {
             // Ana sayfada değilsek ana sayfaya dön
             _selectTab(0);
           } else {
@@ -157,7 +159,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       },
       child: Scaffold(
         body: IndexedStack(
-          index: _currentIndex,
+          index: currentIndex,
           children: [
             _buildTabNavigator(0), // 1. Sekme (Ana Sayfa İç Mimarisi)
             _buildTabNavigator(1), // 2. Sekme (Katalog İç Mimarisi)
@@ -165,7 +167,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
+          currentIndex: currentIndex,
           selectedItemColor: AppColors.corporateNavy,
           unselectedItemColor: Colors.grey,
           backgroundColor: Colors.white,
@@ -188,3 +190,4 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 }
+

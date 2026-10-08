@@ -483,4 +483,4 @@ class PartDetailPage extends ConsumerWidget {
       ),
     );
   }
-
+}

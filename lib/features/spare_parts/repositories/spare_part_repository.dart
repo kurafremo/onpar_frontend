@@ -269,6 +269,10 @@ class SparePartRepository {
           if (promptHint != null && promptHint.trim().isNotEmpty)
             'prompt_hint': promptHint.trim(),
         },
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          sendTimeout: const Duration(seconds: 60),
+        ),
       );
       if (response.data is Map && response.data['data'] != null) {
         return Map<String, dynamic>.from(response.data['data']);
@@ -283,6 +287,10 @@ class SparePartRepository {
             if (promptHint != null && promptHint.trim().isNotEmpty)
               'prompt_hint': promptHint.trim(),
           },
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            sendTimeout: const Duration(seconds: 60),
+          ),
         );
         if (fallback.data is Map && fallback.data['data'] != null) {
           return Map<String, dynamic>.from(fallback.data['data']);

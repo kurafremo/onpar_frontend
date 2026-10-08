@@ -14,14 +14,20 @@ class AppSnackBar {
   static void showSuccess(
     BuildContext? context,
     String message, {
+    String? actionLabel,
+    VoidCallback? onAction,
     Duration duration = const Duration(seconds: 3),
+    SnackBarBehavior? behavior,
   }) {
     _show(
       context: context,
       message: message,
       backgroundColor: const Color(0xFF1B5E20), // Koyu Yeşil
       icon: Icons.check_circle_outline,
+      actionLabel: actionLabel,
+      onAction: onAction,
       duration: duration,
+      behavior: behavior,
     );
   }
 
@@ -30,6 +36,7 @@ class AppSnackBar {
     String message, {
     VoidCallback? onRetry,
     Duration duration = const Duration(seconds: 4),
+    SnackBarBehavior? behavior,
   }) {
     _show(
       context: context,
@@ -39,6 +46,7 @@ class AppSnackBar {
       actionLabel: onRetry != null ? 'Tekrar Dene' : null,
       onAction: onRetry,
       duration: duration,
+      behavior: behavior,
     );
   }
 
@@ -46,6 +54,7 @@ class AppSnackBar {
     BuildContext? context,
     String message, {
     Duration duration = const Duration(seconds: 3),
+    SnackBarBehavior? behavior,
   }) {
     _show(
       context: context,
@@ -53,6 +62,7 @@ class AppSnackBar {
       backgroundColor: const Color(0xFFE65100), // Koyu Turuncu
       icon: Icons.warning_amber_rounded,
       duration: duration,
+      behavior: behavior,
     );
   }
 
@@ -60,6 +70,7 @@ class AppSnackBar {
     BuildContext? context,
     String message, {
     Duration duration = const Duration(seconds: 3),
+    SnackBarBehavior? behavior,
   }) {
     _show(
       context: context,
@@ -67,6 +78,7 @@ class AppSnackBar {
       backgroundColor: const Color(0xFF263238), // BlueGrey Dark
       icon: Icons.info_outline,
       duration: duration,
+      behavior: behavior,
     );
   }
 
@@ -74,6 +86,7 @@ class AppSnackBar {
     BuildContext? context,
     String message, {
     Duration duration = const Duration(seconds: 4),
+    SnackBarBehavior? behavior,
   }) {
     _show(
       context: context,
@@ -81,6 +94,7 @@ class AppSnackBar {
       backgroundColor: const Color(0xFF37474F), // Slate Grey
       icon: Icons.wifi_off_rounded,
       duration: duration,
+      behavior: behavior,
     );
   }
 
@@ -92,12 +106,19 @@ class AppSnackBar {
     String? actionLabel,
     VoidCallback? onAction,
     Duration duration = const Duration(seconds: 3),
+    SnackBarBehavior? behavior,
   }) {
+    final effectiveBehavior = behavior ??
+        (context != null
+            ? (Theme.of(context).snackBarTheme.behavior ?? SnackBarBehavior.floating)
+            : SnackBarBehavior.floating);
+    final isFloating = effectiveBehavior == SnackBarBehavior.floating;
+
     final snackBar = SnackBar(
       elevation: 6,
-      behavior: SnackBarBehavior.floating,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      behavior: effectiveBehavior,
+      margin: isFloating ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12) : null,
+      shape: isFloating ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)) : null,
       backgroundColor: backgroundColor,
       duration: duration,
       content: Row(

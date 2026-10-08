@@ -68,11 +68,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           children: [
             Icon(Icons.cleaning_services_outlined, color: Colors.orange),
             SizedBox(width: 8),
-            Text('Mükerrer Ürünleri Temizle'),
+            Expanded(
+              child: Text('Mükerrer Ürünleri Temizle'),
+            ),
           ],
         ),
-        content: const Text(
-          'Excel aktarımı veya çift giriş nedeniyle mükerrer oluşan ürünlerin stokları ana kayıtta birleştirilecek ve fazlalıklar güvenle temizlenecektir.\n\nBu işlemi başlatmak istiyor musunuz?',
+        content: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Excel aktarımı veya çift giriş nedeniyle mükerrer oluşan ürünlerin stokları ana kayıtta birleştirilecek ve fazlalıklar güvenle temizlenecektir.\n\nBu işlemi başlatmak istiyor musunuz?',
+          ),
         ),
         actions: [
           TextButton(
@@ -117,11 +122,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           children: [
             Icon(Icons.auto_fix_high_rounded, color: Colors.indigo),
             SizedBox(width: 8),
-            Text('Markaları Otomatik Onar'),
+            Expanded(
+              child: Text('Markaları Otomatik Onar'),
+            ),
           ],
         ),
-        content: const Text(
-          'Markası boş veya belirtilmemiş olan parçaların isimleri taranarak (Renault, Fiat, Bosch, Valeo vb.) üretici markaları veritabanında otomatik atanacaktır.\n\nİşlemi onaylıyor musunuz?',
+        content: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Markası boş veya belirtilmemiş olan parçaların isimleri taranarak (Renault, Fiat, Bosch, Valeo vb.) üretici markaları veritabanında otomatik atanacaktır.\n\nİşlemi onaylıyor musunuz?',
+          ),
         ),
         actions: [
           TextButton(

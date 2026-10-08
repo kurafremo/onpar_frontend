@@ -59,7 +59,11 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
         });
         HapticFeedback.mediumImpact();
         SystemSound.play(SystemSoundType.click);
-        AppSnackBar.showSuccess(context, 'Barkod okundu: ${scannedBarcode.trim()}');
+        AppSnackBar.showSuccess(
+          context,
+          'Barkod okundu: ${scannedBarcode.trim()}',
+          behavior: SnackBarBehavior.fixed,
+        );
       }
     });
   }
@@ -99,25 +103,36 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
         HapticFeedback.mediumImpact();
         SystemSound.play(SystemSoundType.click);
         if (mounted) {
-          AppSnackBar.showSuccess(context, 'Barkod kameradan okundu: ${res.trim()}');
+          AppSnackBar.showSuccess(
+            context,
+            'Barkod kameradan okundu: ${res.trim()}',
+            behavior: SnackBarBehavior.fixed,
+          );
         }
       }
     } catch (e) {
       debugPrint('Kamera hatası: $e');
       if (mounted) {
-        AppSnackBar.showError(context, 'Kamera açılırken bir hata oluştu.');
+        AppSnackBar.showError(
+          context,
+          'Kamera açılırken bir hata oluştu.',
+          behavior: SnackBarBehavior.fixed,
+        );
       }
     }
   }
 
   Future<void> _fetchAiSmartBarcode() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final barcode = _barcodeController.text.trim();
     final name = _nameController.text.trim();
 
     if (barcode.isEmpty && name.isEmpty) {
+      FocusManager.instance.primaryFocus?.unfocus();
       AppSnackBar.showWarning(
         context,
         'Yapay zekanın analiz edebilmesi için önce bir barkod okutun veya parça adı girin.',
+        behavior: SnackBarBehavior.fixed,
       );
       return;
     }
@@ -174,16 +189,20 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
 
       HapticFeedback.mediumImpact();
       if (mounted) {
+        FocusManager.instance.primaryFocus?.unfocus();
         AppSnackBar.showSuccess(
           context,
           '✨ Gemini AI: Parça bilgileri, Marka ve OEM başarıyla dolduruldu!',
+          behavior: SnackBarBehavior.fixed,
         );
       }
     } catch (e) {
       if (mounted) {
+        FocusManager.instance.primaryFocus?.unfocus();
         AppSnackBar.showError(
           context,
           'Yapay zeka analiz hatası: ${DioErrorHandler.getErrorMessage(e)}',
+          behavior: SnackBarBehavior.fixed,
         );
       }
     } finally {
@@ -229,7 +248,11 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        AppSnackBar.showError(context, 'Parça eklenemedi: ${DioErrorHandler.getErrorMessage(e)}');
+        AppSnackBar.showError(
+          context,
+          'Parça eklenemedi: ${DioErrorHandler.getErrorMessage(e)}',
+          behavior: SnackBarBehavior.fixed,
+        );
       }
     }
   }
@@ -260,11 +283,17 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
   Widget build(BuildContext context) {
     final suppliersAsync = ref.watch(supplierProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        title: const Text('Yeni Parça Ekle'),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        snackBarTheme: Theme.of(context).snackBarTheme.copyWith(
+              behavior: SnackBarBehavior.fixed,
+            ),
       ),
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundLight,
+        appBar: AppBar(
+          title: const Text('Yeni Parça Ekle'),
+        ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -498,7 +527,8 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   // ── Section header ──────────────────────────────────────────────────────────
@@ -548,7 +578,7 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Yapay Zeka (Gemini 3.6 Flash)',
+                  'Yapay Zeka (Gemini 3.5 Flash-Lite)',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppColors.corporateNavy,

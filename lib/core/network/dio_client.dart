@@ -33,14 +33,22 @@ class DioClient {
       connectTimeout: const Duration(seconds: 20),
       receiveTimeout: const Duration(seconds: 20),
       sendTimeout: const Duration(seconds: 20),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
     );
 
     // 1. Temel API İstemcisi
     _dio = Dio(baseOptions);
+    _dio.options.headers['User-Agent'] =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
     // 2. Sadece Token Yenileme İçin Kullanılan Bağımsız İstemci
     _refreshDio = Dio(baseOptions);
+    _refreshDio.options.headers['User-Agent'] =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
     // 3. Araya Girici (Interceptor) - Güvenlik, Rota Temizliği ve Sessiz Token Rotasyonu
     _dio.interceptors.add(

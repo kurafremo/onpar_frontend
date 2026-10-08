@@ -359,18 +359,23 @@ class _AiReportPageState extends ConsumerState<AiReportPage> {
   Widget build(BuildContext context) {
     final aiReportAsync = ref.watch(aiReportProvider);
 
-   return SafeArea(
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundLight,
-        appBar: AppBar(
-          title: const Text(
-            'Yapay Zeka Analizi',
-            style: TextStyle(fontWeight: FontWeight.bold),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(
+        title: const Text(
+          'Yapay Zeka Analizi',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
-          centerTitle: true,
-          backgroundColor: AppColors.corporateNavy,
-          foregroundColor: Colors.white,
-          elevation: 0,
+        ),
+        centerTitle: true,
+        backgroundColor: AppColors.corporateNavy,
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actionsIconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
           actions: [
             aiReportAsync.maybeWhen(
               data: (text) => text != null
@@ -611,7 +616,7 @@ class _AiReportPageState extends ConsumerState<AiReportPage> {
           onRetry: () => ref.read(aiReportProvider.notifier).generateShopReport(),
         ),
       ),
-    ),
     );
   }
 }
+

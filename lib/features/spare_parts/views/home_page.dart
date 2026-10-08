@@ -75,50 +75,71 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
-  // --- ANTIGRAVITY KONSEPT A: GRID ACTION KARTI ---
-  Widget _buildActionCard(BuildContext context, String title, IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.corporateNavy,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.corporateNavy.withValues(alpha:0.15), 
-              blurRadius: 10, 
-              offset: const Offset(0, 4)
-            )
-          ],
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(icon, color: Colors.white70, size: 28),
-                  const Spacer(),
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
-                ],
+  // --- B2B ERP: PROFESYONEL ÇALIŞMA ALANI KARTI ---
+  Widget _buildActionCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    VoidCallback onTap, {
+    double width = 240,
+    double height = 120,
+  }) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.corporateNavy,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.corporateNavy.withValues(alpha: 0.15),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: AppColors.energeticOrange,
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(icon, color: Colors.white70, size: 28),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.chevron_right, color: Colors.white),
               ),
-            ),
-          ],
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: AppColors.energeticOrange,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: const Icon(Icons.chevron_right, color: Colors.white, size: 20),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -151,7 +172,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           // 1. KULLANICI KARŞILAMA (GREETING)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -190,7 +211,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     todaySalesCount += sale.quantity;
                   }
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: AppColors.corporateNavy,
@@ -245,7 +266,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 if (criticalCount == 0 && outOfStockCount == 0) return const SizedBox();
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
                   child: InkWell(
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CriticalStockPage())),
                     borderRadius: BorderRadius.circular(16),
@@ -283,7 +304,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           // YENİ 4. ARAMA ÇUBUĞU (YUKARI TAŞINDI)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -320,20 +341,75 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           ),
 
-          // YENİ 5. HIZLI İŞLEM MENÜSÜ (3 BUTONA DÜŞÜRÜLDÜ)
+          // YENİ 5. ÇALIŞMA ALANI / HIZLI İŞLEMLER (B2B ERP MASAÜSTÜ WORKSPACE)
           if (searchQuery.isEmpty)
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-              sliver: SliverGrid.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 1.35,
-                children: [
-                  _buildActionCard(context, 'Hızlı Satış (POS)', Icons.shopping_cart_checkout_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NewSalePage()))),
-                  _buildActionCard(context, 'Satış Defteri', Icons.receipt_long_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesLedgerPage()))),
-                  _buildActionCard(context, 'Yeni Parça Ekle', Icons.add_box_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddPartPage()))),
-                ],
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Hızlı İşlemler',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.corporateNavy,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Sık kullanılan kasa ve envanter yönetim işlemleri',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      spacing: 16.0,
+                      runSpacing: 16.0,
+                      children: [
+                        _buildActionCard(
+                          context,
+                          'Hızlı Satış (POS)',
+                          Icons.shopping_cart_checkout_rounded,
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const NewSalePage()),
+                          ),
+                          width: 240,
+                          height: 120,
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Satış Defteri',
+                          Icons.receipt_long_rounded,
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SalesLedgerPage()),
+                          ),
+                          width: 240,
+                          height: 120,
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Yeni Parça Ekle',
+                          Icons.add_box_rounded,
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AddPartPage()),
+                          ),
+                          width: 240,
+                          height: 120,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
 

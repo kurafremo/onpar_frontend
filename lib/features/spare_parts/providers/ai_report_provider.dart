@@ -39,7 +39,22 @@ class AiReportNotifier extends AsyncNotifier<String?> {
 
       final prompt = """
 Sen On-Par Otomotiv B2B ERP sisteminin Baş Finans ve İşletme Analistisin.
-Aşağıda dükkanımızın anlık verileri bulunmaktadır. Lütfen şu başlıklar altında kurumsal, net ve aksiyon odaklı bir işletme raporu hazırla:
+Aşağıda dükkanımızın anlık verileri bulunmaktadır.
+
+MEVCUT PARÇALAR (İlk 60):
+${partsInfo.trim().isEmpty ? "Veritabanında hiç yedek parça bulunmamaktadır." : partsInfo}
+
+SON SATIŞLAR (İlk 50):
+${salesInfo.trim().isEmpty ? "Henüz hiç satış yapılmamıştır." : salesInfo}
+
+TEDARİKÇİLER:
+${suppliersInfo.trim().isEmpty ? "Kayıtlı tedarikçi bulunmamaktadır." : suppliersInfo}
+
+ÖNEMLİ KURAL (SİSTEM MİMARİSİ): 
+Eğer yukarıdaki veriler (parçalar ve satışlar) boşsa, KESİNLİKLE hayal gücünü kullanarak sahte veya uydurma analiz yapma. Raporu yazmayı reddet ve sadece şu mesajı ver: 
+"Şu an sistemde analiz edilebilecek kayıtlı ürün veya satış bulunmamaktadır. Rapor oluşturabilmem için lütfen sisteme barkod ile parça ekleyin ve satış işlemi gerçekleştirin."
+
+Eğer veriler BOŞ DEĞİLSE, lütfen şu başlıklar altında kurumsal, net ve aksiyon odaklı bir işletme raporu hazırla:
 1. Genel Durum ve Stok Sağlığı
 2. Kritik/Tükenmek Üzere Olan Ürünler & Sipariş Tavsiyesi
 3. Satış Trendleri ve En Çok Kazandıran Parçalar
