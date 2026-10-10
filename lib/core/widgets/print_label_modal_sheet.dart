@@ -15,7 +15,7 @@ enum LabelFormat { largeBox1D, smallPart2D }
 class PrintLabelBottomSheet extends ConsumerStatefulWidget {
   final SparePart part;
   final String printerName;
-  final bool isNewRegistration; // MÜHENDİSLİK: Akıllı Stok Anahtarı
+  final bool isNewRegistration; 
 
   const PrintLabelBottomSheet({
     super.key,
@@ -55,7 +55,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
   void initState() {
     super.initState();
     _quantityController = TextEditingController(text: '1');
-    // Yeni kayıt ise stok ekleme KAPALI, Mal kabul ise AÇIK başlar
     _addToStock = !widget.isNewRegistration;
   }
 
@@ -79,7 +78,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
     setState(() => _isPrinting = true);
     HapticFeedback.mediumImpact();
 
-    // ID çözümleme: Ürün yeni eklendiğinde part.id null gelebilir
     SparePart targetPart = widget.part;
     if (targetPart.id == null) {
       final currentParts = ref.read(sparePartsProvider).value ?? [];
@@ -100,14 +98,22 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
     final barcodeToPrint = targetPart.barcode ?? targetPart.oemCode ?? (targetPart.id != null ? 'ONPAR-${targetPart.id}' : 'ONPAR-0');
     bool printSuccess = false;
 
-    // GERÇEK YAZICI MOTORU BAĞLANTISI
+    // GERÇEK YAZICI MOTORU BAĞLANTISI VE KURUMSAL VERİLERİN GÖNDERİMİ
     try {
+      // Araç modellerini virgülle birleştirip tek metin yapıyoruz (Örn: "Clio, Megane")
+      final vehicleModelText = targetPart.compatibleVehicles.isNotEmpty 
+          ? targetPart.compatibleVehicles.join(', ') 
+          : 'Genel';
+
       if (_selectedFormat == LabelFormat.largeBox1D) {
         printSuccess = await PrinterService.printLargeLabel(
           partName: targetPart.name,
           oemCode: targetPart.oemCode ?? '-',
           barcodeData: barcodeToPrint,
           quantity: _quantity,
+          brand: targetPart.brand ?? 'Belirtilmemis',
+          model: vehicleModelText, 
+          location: targetPart.location,
         );
       } else {
         printSuccess = await PrinterService.printSmallLabel(
@@ -115,6 +121,9 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
           oemCode: targetPart.oemCode ?? '-',
           qrData: barcodeToPrint,
           quantity: _quantity,
+          brand: targetPart.brand ?? 'Belirtilmemis',
+          model: vehicleModelText, 
+          location: targetPart.location,
         );
       }
     } catch (e) {
@@ -122,7 +131,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
       printSuccess = false;
     }
 
-    // 1. Yazıcı başarılı olsun veya olmasın, STOĞA EKLE açıksa stoğu KESİNLİKLE ekle!
     bool stockUpdated = false;
     if (_addToStock) {
       try {
@@ -158,7 +166,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
     if (!mounted) return;
     setState(() => _isPrinting = false);
 
-    // 2. Kullanıcıya verilecek mesajı ayarla ve modalı kapat
     if (printSuccess) {
       if (mounted) {
         AppSnackBar.showSuccess(
@@ -184,6 +191,7 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
@@ -216,8 +224,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
                     const SizedBox(height: 10),
                     _buildLabelFormatSelector(),
                     const SizedBox(height: 20),
-
-                    // AKILLI STOK ANAHTARI
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Basılan Adet Kadar Stoğa Ekle', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -230,7 +236,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
                       onChanged: (val) => setState(() => _addToStock = val),
                     ),
                     const Divider(),
-
                     _buildSectionTitle(title: 'BASKI ADEDİ', badge: 'Mevcut Stok: ${widget.part.stockQuantity} Adet'),
                     const SizedBox(height: 10),
                     _buildQuantityInput(),
@@ -281,7 +286,7 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
                   children: [
                     Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
                     const SizedBox(width: 6),
-                    Text('${widget.printerName} • Çevrimiçi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blueGrey[600])),
+                    Text('${widget.printerName} Çevrimiçi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blueGrey[600])),
                   ],
                 ),
               ],
@@ -349,7 +354,7 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
         const SizedBox(width: 12),
         Expanded(
           child: _buildFormatCard(
-            format: LabelFormat.smallPart2D, title: 'Küçük Etiket', dimensions: '58 × 40 mm', barcodeType: '2D QR Code', subtitle: 'Tekli Poşet & Kutu',
+            format: LabelFormat.smallPart2D, title: 'Küçük Etiket', dimensions: '60 × 40 mm', barcodeType: '2D QR Code', subtitle: 'Tekli Poşet & Kutu',
             isSelected: _selectedFormat == LabelFormat.smallPart2D, wireframe: _build2DWireframe(),
           ),
         ),
@@ -412,7 +417,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
     );
   }
 
-  // ANTIGRAVITY GÖRSELLERİ: 1D Barkod Çizimi
   Widget _build1DWireframe() {
     return Container(
       height: 76, width: double.infinity, padding: const EdgeInsets.all(6),
@@ -442,7 +446,6 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
     );
   }
 
-  // ANTIGRAVITY GÖRSELLERİ: 2D Karekod Çizimi
   Widget _build2DWireframe() {
     return Container(
       height: 76, width: double.infinity, padding: const EdgeInsets.all(6),
@@ -502,7 +505,7 @@ class _PrintLabelBottomSheetState extends ConsumerState<PrintLabelBottomSheet> {
               const SizedBox(width: 6),
               _buildPresetChip('+10', 10),
               const SizedBox(width: 6),
-              _buildStockMatchChip(), // Antigravity'nin "Tümü" butonu
+              _buildStockMatchChip(),
             ],
           ),
         ],

@@ -29,9 +29,9 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
   final _barcodeController = TextEditingController();
   final _brandController = TextEditingController();
   final _vehiclesController = TextEditingController();
+  final _locationController = TextEditingController(); // RAF KONUMU EKLENDİ
   final _buyPriceController = TextEditingController();
   final _sellPriceController = TextEditingController();
-  // STOK KONTROLCÜSÜ SİLİNDİ
   final _criticalStockController = TextEditingController(text: '5');
 
   String? _selectedSupplierId;
@@ -78,6 +78,7 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
     _barcodeController.dispose();
     _brandController.dispose();
     _vehiclesController.dispose();
+    _locationController.dispose(); // RAF KONUMU TEMİZLENDİ
     _buyPriceController.dispose();
     _sellPriceController.dispose();
     _criticalStockController.dispose();
@@ -231,9 +232,10 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
         barcode: _barcodeController.text.trim().isEmpty ? null : _barcodeController.text.trim(),
         brand: _brandController.text.trim().isEmpty ? null : _brandController.text.trim(),
         compatibleVehicles: vehiclesList,
+        location: _locationController.text.trim().isEmpty ? null : _locationController.text.trim(), // RAF KONUMU VERİTABANINA BAĞLANDI
         buyPrice: double.tryParse(_buyPriceController.text.replaceAll(',', '.').trim()) ?? 0.0,
         sellPrice: double.tryParse(_sellPriceController.text.replaceAll(',', '.').trim()) ?? 0.0,
-        stockQuantity: 0, // STOK DİREKT 0 YAZILDI
+        stockQuantity: 0,
         criticalStockLevel: int.tryParse(_criticalStockController.text.trim()) ?? 5,
         supplierId: _selectedSupplierId,
       );
@@ -452,6 +454,18 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
                 hint: 'Örn: Megane 4, Egea',
               ),
             ),
+            
+            // RAF KONUMU UI KUTUSU EKLENDİ
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _locationController,
+              textInputAction: TextInputAction.next,
+              decoration: _inputDec(
+                'Raf Konumu',
+                icon: Icons.place_outlined,
+                hint: 'Örn: A-12-03',
+              ),
+            ),
 
             const SizedBox(height: 24),
             // ── Section: Fiyat ve Uyarılar ────────────────────────────────
@@ -484,7 +498,6 @@ class _AddPartPageState extends ConsumerState<AddPartPage> {
               ],
             ),
             const SizedBox(height: 12),
-            // STOK GİRİŞİ KALDIRILDI!
             TextFormField(
               controller: _criticalStockController,
               textInputAction: TextInputAction.done,

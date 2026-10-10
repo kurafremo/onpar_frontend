@@ -133,7 +133,7 @@ class SparePart {
       'critical_stock_level': criticalStockLevel,
       if (location != null && location!.isNotEmpty) 'location': location,
       'is_deleted': isDeleted,
-      'supplier_id': ?parsedSupplierId,
+      'supplier_id': parsedSupplierId,
     };
   }
 
